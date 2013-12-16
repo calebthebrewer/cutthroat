@@ -15,70 +15,14 @@ Router.map(function() {
 	this.route('stats', {path:'/stats'});
 });
 
-Template.gamePlay.server = function() {
-	return Games.findOne(Session.get('game')).players[0] != undefined ?
-			Games.findOne(Session.get('game')).players[0] : false;
-};
-
-Template.gamePlay.reciever = function() {
-	return currentPlayers[1] != undefined ? currentPlayers[1] : false;
-};
-
-Template.gamePlay.queue = function() {
-	return currentPlayers.slice(2);
-};
-
-Template.players.players = function() {
-	return Players.find();
-};
-
-Template.players.events({
-	'submit': function(e) {
-		e.preventDefault();
-		console.log(e);
-		Players.insert({name: playerName.value});
-		playerName.value = "";
-	}
-});
-
-Template.playerRow.events({
-	'click button.removePlayer': function() {
-		Players.remove(this._id);
-	}
-});
-
-Template.playerGameRow.events({
-	'click button.removePlayer': function() {
-		for (i in currentPlayers) {
-			if (currentPlayers[i].name == this.name) {
-				currentPlayers.splice(i, 1);
-				currentPlayersDepend.changed();
-			}
-		}
-	}
-});
+/**
+ * Game Setup 
+ */
 
 Template.gameSetup.players = function() {
 	currentPlayersDepend.depend();
 	return currentPlayers;
 };
-
-Template.gamePlay.game = function() {
-	return Games.find(Session.get('game')).players;
-};
-
-function isPlayerInCurrentGame(player) {
-	for (i in currentPlayers) {
-		if (currentPlayers[i].name == player.name) {
-			return true;
-		}
-	}
-	return false;
-}
-
-function isPlaying() {
-	return Session.get('game') ? true : false;
-}
 
 Template.gameSetup.isPlaying = function() {
 	return isPlaying();
@@ -111,6 +55,27 @@ Template.gameSetup.events({
 	}
 });
 
+/**
+ * Game Play Functions
+ */
+
+Template.gamePlay.server = function() {
+	return Games.findOne(Session.get('game')).players[0] != undefined ?
+			Games.findOne(Session.get('game')).players[0] : false;
+};
+
+Template.gamePlay.reciever = function() {
+	return currentPlayers[1] != undefined ? currentPlayers[1] : false;
+};
+
+Template.gamePlay.queue = function() {
+	return currentPlayers.slice(2);
+};
+
+Template.gamePlay.game = function() {
+	return Games.find(Session.get('game')).players;
+};
+
 Template.gamePlay.events({
 	'click button.endGame': function() {
 		Session.set('lastGame', Session.get('game'));
@@ -119,11 +84,64 @@ Template.gamePlay.events({
 	}
 });
 
+/**
+ * Game Results 
+ */
+
 Template.gameResults.events({
 	'click button.newGame' : function() {
 		Router.go('gameSetup');
 	}
 });
+
+/**
+ * Players Functions 
+ */
+
+Template.players.players = function() {
+	return Players.find();
+};
+
+Template.players.events({
+	'submit': function(e) {
+		e.preventDefault();
+		console.log(e);
+		Players.insert({name: playerName.value});
+		playerName.value = "";
+	}
+});
+
+//other
+
+Template.playerRow.events({
+	'click button.removePlayer': function() {
+		Players.remove(this._id);
+	}
+});
+
+Template.playerGameRow.events({
+	'click button.removePlayer': function() {
+		for (i in currentPlayers) {
+			if (currentPlayers[i].name == this.name) {
+				currentPlayers.splice(i, 1);
+				currentPlayersDepend.changed();
+			}
+		}
+	}
+});
+
+function isPlayerInCurrentGame(player) {
+	for (i in currentPlayers) {
+		if (currentPlayers[i].name == player.name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function isPlaying() {
+	return Session.get('game') ? true : false;
+}
 
 Template.navagation.events({
 	'click a.routeGameSetup': function() {

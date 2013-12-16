@@ -1,0 +1,33 @@
+<template name="players">
+	<form id="addPlayer" class="form-inline">
+		<fieldset>
+			<legend>Create New Player</legend>
+			<div class="input-append">
+				<input class="input-large" type="text" placeholder="player name" id="playerName">
+				<button type="Submit" class="btn btn-primary input-large">Create Player</button>
+			</div>
+		</fieldset>
+	</form>
+	{{#if players}}
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Player Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each players}}
+			<tr>
+				{{> playerRow}}
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	{{/if}}
+</template>
+
+<template name="playerRow">
+	<td><button class="removePlayer btn"><i class="icon-trash"></button></i></td>
+	<td>{{name}}</td>
+</template>

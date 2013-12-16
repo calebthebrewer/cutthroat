@@ -34,6 +34,11 @@
 	</button>
 </template>
 
+<template name="playerGameRow">
+	<td><button class="removePlayer btn"><i class="icon-remove"></button></i></td>
+	<td>{{name}}</td>
+</template>
+
 <template name="gamePlay">
 	{{#if isPlaying}}
 	{{#if server}}
@@ -67,47 +72,4 @@
 <template name="gameResults">
 	game results
 	<button class="btn btn-primary input-large btn-block newGame">New Game</button>
-</template>
-
-<template name="players">
-	<form id="addPlayer" class="form-inline">
-		<fieldset>
-			<legend>Create New Player</legend>
-			<div class="input-append">
-				<input class="input-large" type="text" placeholder="player name" id="playerName">
-				<button type="Submit" class="btn btn-primary input-large">Create Player</button>
-			</div>
-		</fieldset>
-	</form>
-	{{#if players}}
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th></th>
-				<th>Player Name</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{#each players}}
-			<tr>
-				{{> playerRow}}
-			</tr>
-			{{/each}}
-		</tbody>
-	</table>
-	{{/if}}
-</template>
-
-<template name="stats">
-	<h1>stats page</h1>
-</template>
-
-<template name="playerRow">
-	<td><button class="removePlayer btn"><i class="icon-trash"></button></i></td>
-	<td>{{name}}</td>
-</template>
-
-<template name="playerGameRow">
-	<td><button class="removePlayer btn"><i class="icon-remove"></button></i></td>
-	<td>{{name}}</td>
 </template>
