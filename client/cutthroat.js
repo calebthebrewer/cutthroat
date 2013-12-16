@@ -43,7 +43,7 @@ Template.gameSetup.isPlaying = function() {
 Template.gameSetup.events({
 	'submit': function(e) {
 		e.preventDefault();
-		var player = Players.findOne({name: document.getElementById('playerName').value});
+		var player = Players.findOne({name: document.getElementById('playerName').value, location: Session.get('gameLocation')});
 		if (player) {
 			if (!isPlayerInCurrentGame(player)) {
 				currentPlayers.push(player);
@@ -61,7 +61,8 @@ Template.gameSetup.events({
 		var game = Games.insert({
 			players: currentPlayers,
 			points: [],
-			status: "in progress"
+			status: "in progress",
+			location: Session.get('gameLocation')
 		});
 		Session.set('game', game);
 		Router.go('gamePlay');
@@ -96,6 +97,26 @@ Template.gamePlay.game = function() {
 };
 
 Template.gamePlay.events({
+	'click button.undoPoint': function() {
+		var lastPoint = currentPoints.pop();
+		var lastLoser = currentPlayers.pop();
+		var queued = currentPlayers.shift();
+		currentPlayers.splice(1, 0, queued);
+		if (lastPoint.server.name == lastPoint.winner.name) {
+			currentPlayers.splice(1, 0, lastLoser);
+		} else {
+			currentPlayers.unshift(lastLoser);
+		}
+		for (i in currentScore) {
+			if (currentScore[i].player._id == lastPoint.winner._id) {
+				currentScore[i].score--;
+			}
+		}
+		currentPointsDepend.changed();
+		currentPlayersDepend.changed();
+		currentScoreDepend.changed();
+		updateStats();
+	},
 	'click button.endGame': function() {
 		Router.go('gameResults');
 	},
@@ -203,7 +224,8 @@ Template.gameResults.events({
 			points: currentPoints,
 			score: currentScore,
 			longestStreak: longestStreak,
-			status: "complete"
+			status: "complete",
+			location: Session.get('gameLocation')
 		});
 		Session.set('game', '');
 		currentScore = [];
@@ -222,19 +244,27 @@ Template.gameResults.events({
  */
 
 Template.players.players = function() {
-	return Players.find();
+	return Players.find({location: Session.get('gameLocation')});
+};
+
+Template.players.location = function() {
+	return Session.get('gameLocation');
 };
 
 Template.players.playersExist = function() {
-	return Players.findOne() != undefined ? true : false;
+	return Players.findOne({location: Session.get('gameLocation')}) != undefined ? true : false;
 };
 
 Template.players.events({
-	'submit': function(e) {
+	'click button.createPlayer': function(e) {
 		e.preventDefault();
 		console.log(e);
-		Players.insert({name: playerName.value});
+		Players.insert({name: playerName.value, location: Session.get('gameLocation')});
 		playerName.value = "";
+	},
+	'click button.setLocation': function(e) {
+		e.preventDefault();
+		Session.set('gameLocation', document.getElementById('locationName').value);
 	}
 });
 
@@ -252,7 +282,7 @@ Template.stats.currentPoints = function() {
 };
 
 Template.stats.games = function() {
-	return Games.find({status: "complete"});
+	return Games.find({status: "complete", location: Session.get('gameLocation')});
 };
 
 Template.stats.playerList = function() {
@@ -279,7 +309,7 @@ Template.gameRow.playerList = function() {
 };
 
 Template.gameRow.winner = function() {
-	if (this.date == undefined) return false;
+	if (this.score == undefined) return false;
 	var winner = this.score[0];
 	for (i in this.score) {
 		if (this.score[i].score > winner.score) {
@@ -366,9 +396,11 @@ Template.navagation.getActiveClass = function(tabName) {
 };
 
 Meteor.startup(function() {
-	if (Players.find().length == 0) {
+	if (Players.find({location: Session.get('gameLocation')}).length == 0) {
 		Players.insert({name: "Tommy"});
 		Players.insert({name: "Caleb"});
 		Players.insert({name: "Ben"});
 	}
+	
+	Session.setDefault('gameLocation', 'Earth');
 });

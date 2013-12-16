@@ -1,10 +1,19 @@
 <template name="players">
+	<form id="setLocation" class="form-inline">
+		<fieldset>
+			<legend>Set Location</legend>
+			<div class="input-append">
+				<input class="input-large" type="text" placeholder="location name" id="locationName" value="{{location}}">
+				<button type="submit" class="btn btn-primary input-large setLocation">Set Location</button>
+			</div>
+		</fieldset>
+	</form>
 	<form id="addPlayer" class="form-inline">
 		<fieldset>
 			<legend>Create New Player</legend>
 			<div class="input-append">
 				<input class="input-large" type="text" placeholder="player name" id="playerName">
-				<button type="Submit" class="btn btn-primary input-large">Create Player</button>
+				<button type="submit" class="btn createPlayer btn-primary input-large">Create Player</button>
 			</div>
 		</fieldset>
 	</form>
