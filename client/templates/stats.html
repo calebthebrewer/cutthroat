@@ -1,3 +1,53 @@
 <template name="stats">
-	<h1>stats page</h1>
+	{{#if isPlaying}}
+	<h3>Current Game</h3>
+	<h4>{{playerList}}</h4>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Server</th>
+				<th>Reciever</th>
+				<th>Winner</th>
+				<th>How</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each currentPoints}}
+			<tr>
+				<td>{{server.name}}</td>
+				<td>{{reciever.name}}</td>
+				<td>{{winner.name}}</td>
+				<td>{{how}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	{{/if}}
+	<h3>Past Games</h3>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Date</th>
+				<th>Players</th>
+				<th>Winner</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each games}}
+			<tr>
+				{{> gameRow}}
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</template>
+
+<template name="gameRow">
+	<td><button class="removeGame btn"><i class="icon-trash"></button></i></td>
+	<td>{{date}}</td>
+	<td>{{playerList}}</td>
+	<td>{{winner}}</td>
+	<td>more</td>
 </template>

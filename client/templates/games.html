@@ -43,33 +43,44 @@
 	{{#if isPlaying}}
 	{{#if server}}
 	<div class="container">
-		<div class="row">server: {{server.name}}</div>
+		<div class="row"><h2>Server: {{server.name}}</h2></div>
 		<div class="row">
 			<div class="span6">
-				<button class="btn btn-block score-button serverAce">Server's Ace</button>
+				<button class="btn btn-block score-button serverAce">{{server.name}} Server</button>
 			</div>
 			<div class="span6">
-				<button class="btn btn-block score-button serverRally">Won on Rally</button>
+				<button class="btn btn-block score-button serverRally">{{server.name}} Rally</button>
 			</div>
 		</div>
 	</div>
 	{{/if}}
 	{{#if reciever}}
 	<div class="container">
-		<div class="row">reciever: {{reciever.name}}</div>
+		<div class="row"><h2>Reciever: {{reciever.name}}</h2></div>
 		<div class="row">
-			<div class="span6">server's fault</div>
-			<div class="span6">won on rally</div>
+			<div class="span6">
+				<button class="btn btn-block score-button serverFault">{{reciever.name}} Serve</button>
+			</div>
+			<div class="span6">
+				<button class="btn btn-block score-button recieverRally">{{reciever.name}} Rally</button>
+			</div>
 		</div>
 	</div>
+	<button class="btn btn-block input-large undoPoint">UndoPoint</button>
 	{{/if}}
 	<button class="btn btn-primary input-large btn-block endGame">End Game</button>
 	{{else}}
 	You are not currently playing a game.
+	<button class="btn btn-primary input-large btn-block newGame">New Game</button>
 	{{/if}}
 </template>
 
 <template name="gameResults">
+	{{#if isPlaying}}
+	<button class="btn btn-primary input-large btn-block resumeGame">Resume Game</button>
 	game results
-	<button class="btn btn-primary input-large btn-block newGame">New Game</button>
+	{{else}}
+	No game stats to display.
+	{{/if}}
+	<button class="btn btn-primary input-large btn-block newGame">Save and Close Game</button>
 </template>
