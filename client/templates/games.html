@@ -25,7 +25,7 @@
 		</tbody>
 	</table>
 	{{/if}}
-	<button class="btn btn-primary input-large btn-block startGame">
+	<button class="btn btn-primary btn-block startGame bigger-button">
 	{{#if isPlaying}}
 	Resume Game
 	{{else}}
@@ -41,12 +41,13 @@
 
 <template name="gamePlay">
 	{{#if isPlaying}}
+	{{currentScore}}
 	{{#if server}}
 	<div class="container">
 		<div class="row"><h2>Server: {{server.name}}</h2></div>
 		<div class="row">
 			<div class="span6">
-				<button class="btn btn-block score-button serverAce">{{server.name}} Server</button>
+				<button class="btn btn-block score-button serverAce">{{server.name}} Serve</button>
 			</div>
 			<div class="span6">
 				<button class="btn btn-block score-button serverRally">{{server.name}} Rally</button>
@@ -66,21 +67,41 @@
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-block input-large undoPoint bigger-button">UndoPoint</button>
+	<button class="btn btn-block input-large undoPoint bigger-button">Undo Point</button>
 	{{/if}}
-	<button class="btn btn-primary input-large btn-block endGame bigger-button">End Game</button>
+	<button class="btn btn-primary input-large btn-block endGame bigger-button">Game Results</button>
 	{{else}}
 	You are not currently playing a game.
-	<button class="btn btn-primary input-large btn-block newGame">New Game</button>
+	<button class="btn btn-primary input-large btn-block newGame bigger-button">New Game</button>
 	{{/if}}
 </template>
 
 <template name="gameResults">
 	{{#if isPlaying}}
-	<button class="btn btn-primary input-large btn-block resumeGame">Resume Game</button>
-	game results
+	<button class="btn btn-primary input-large btn-block resumeGame bigger-button">Resume Game</button>
+		<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Server</th>
+				<th>Reciever</th>
+				<th>Winner</th>
+				<th>How</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each currentPoints}}
+			<tr>
+				<td>{{server.name}}</td>
+				<td>{{reciever.name}}</td>
+				<td>{{winner.name}}</td>
+				<td>{{how}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	<button class="btn btn-primary input-large btn-block saveGame bigger-button">End Game</button>
 	{{else}}
-	No game stats to display.
+	<p>You are not currently playing a game.</p>
+	<button class="btn btn-primary input-large btn-block newGame bigger-button">New Game</button>
 	{{/if}}
-	<button class="btn btn-primary input-large btn-block newGame">Save and Close Game</button>
 </template>

@@ -1,28 +1,4 @@
 <template name="stats">
-	{{#if isPlaying}}
-	<h3>Current Game</h3>
-	<h4>{{playerList}}</h4>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Server</th>
-				<th>Reciever</th>
-				<th>Winner</th>
-				<th>How</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{#each currentPoints}}
-			<tr>
-				<td>{{server.name}}</td>
-				<td>{{reciever.name}}</td>
-				<td>{{winner.name}}</td>
-				<td>{{how}}</td>
-			</tr>
-			{{/each}}
-		</tbody>
-	</table>
-	{{/if}}
 	<h3>Past Games</h3>
 	<table class="table table-striped">
 		<thead>
@@ -49,5 +25,30 @@
 	<td>{{date}}</td>
 	<td>{{playerList}}</td>
 	<td>{{winner}}</td>
-	<td>more</td>
+	<td><button class="gameStats btn">more</button></td>
+</template>
+
+<template name="statsSingle">
+	<button class="backToStats btn btn-block bigger-button">Back to Games</button>
+	<h3>{{score}}</h3>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Server</th>
+				<th>Reciever</th>
+				<th>Winner</th>
+				<th>How</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each points}}
+			<tr>
+				<td>{{server.name}}</td>
+				<td>{{reciever.name}}</td>
+				<td>{{winner.name}}</td>
+				<td>{{how}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
 </template>

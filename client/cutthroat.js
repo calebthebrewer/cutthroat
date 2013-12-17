@@ -2,11 +2,11 @@ Players = new Meteor.Collection("players");
 Games = new Meteor.Collection("games");
 Points = new Meteor.Collection("points");
 
-var currentPlayers = [];
-var currentScore = [];
-var currentPoints = [];
-var longestStreak = {};
-var currentStreak = {};
+var currentPlayers = [],
+	currentScore = [],
+	currentPoints = [],
+	longestStreak = {},
+	currentStreak = {};
 var currentPlayersDepend = new Deps.Dependency;
 var currentPointsDepend = new Deps.Dependency;
 var currentScoreDepend = new Deps.Dependency;
@@ -25,6 +25,13 @@ Router.map(function() {
 	this.route('gameResults', {path:'game/results', template:'gameResults'});
 	this.route('players', {path:'/players'});
 	this.route('stats', {path:'/stats'});
+	this.route('statsSingle', {
+		path:'/stats/:_id',
+		data: function() {
+			return Games.findOne(this.params._id);
+		},
+		template: 'statsSingle'
+	});
 });
 
 /**
@@ -34,7 +41,7 @@ Router.map(function() {
 Template.gameSetup.players = function() {
 	currentPlayersDepend.depend();
 	return currentPlayers;
-};
+}; 
 
 Template.gameSetup.isPlaying = function() {
 	return isPlaying();
@@ -43,21 +50,21 @@ Template.gameSetup.isPlaying = function() {
 Template.gameSetup.events({
 	'submit': function(e) {
 		e.preventDefault();
-		var player = Players.findOne({name: document.getElementById('playerName').value, location: Session.get('gameLocation')});
+		var player = Players.findOne({name: playerName.value, location: Session.get('gameLocation')});
 		if (player) {
 			if (!isPlayerInCurrentGame(player)) {
 				currentPlayers.push(player);
 				currentPlayersDepend.changed();
 			} else {
-				console.log("Player " + player.name + " is already in the game.");
+				alert("Player " + player.name + " is already in the game.");
 			}
-			document.getElementById('playerName').value = '';
+			playerName.value = '';
 		} else {
-			console.log("No player named " + playerName.value + " found.");
+			alert("No player named " + playerName.value + " found.");
 		}
 	},
 	'click button.startGame': function() {
-		if (currentPlayers.length < 3) return false;
+		if (currentPlayers.length < 3) return alert('You must add at least 3 players to a game.');
 		var game = Games.insert({
 			players: currentPlayers,
 			points: [],
@@ -94,6 +101,10 @@ Template.gamePlay.queue = function() {
 
 Template.gamePlay.game = function() {
 	return Games.find(Session.get('game')).players;
+};
+
+Template.gamePlay.currentScore = function() {
+	return getCurrentScore();
 };
 
 Template.gamePlay.events({
@@ -205,6 +216,7 @@ function updateStats(winner) {
 	if (longestStreak.score == undefined || currentStreak.score > longestStreak.score) {
 		longestStreak = currentStreak;
 	}
+	console.log(longestStreak);
 	currentScoreDepend.changed();
 }
 
@@ -216,8 +228,13 @@ Template.gameResults.isPlaying = function() {
 	return isPlaying();
 };
 
+Template.gameResults.currentPoints = function() {
+	return currentPoints;
+};
+
 Template.gameResults.events({
-	'click button.newGame': function() {
+	'click button.saveGame': function() {
+		if (currentPoints.length < 1) return alert('The game does not have a score.');
 		Games.update(Session.get('game'), {
 			date: new Date(),
 			players: currentPlayers,
@@ -236,8 +253,23 @@ Template.gameResults.events({
 	},
 	'click button.resumeGame': function() {
 		Router.go('gamePlay');
+	},
+	'click button.newGame' : function() {
+		Router.go('gameSetup');
 	}
 });
+
+function getCurrentScore() {
+	currentScoreDepend.depend();
+	var string = "";
+	for (i in currentScore) {
+		if (string != "") {
+			string += ", ";
+		}
+		string += currentScore[i].player.name + ": " + currentScore[i].score; 
+	}
+	return string;
+}
 
 /**
  * Players Functions 
@@ -258,13 +290,14 @@ Template.players.playersExist = function() {
 Template.players.events({
 	'click button.createPlayer': function(e) {
 		e.preventDefault();
-		console.log(e);
+		if (playerName.value == "") return alert("The player doesn't have a name.");
 		Players.insert({name: playerName.value, location: Session.get('gameLocation')});
 		playerName.value = "";
 	},
 	'click button.setLocation': function(e) {
 		e.preventDefault();
-		Session.set('gameLocation', document.getElementById('locationName').value);
+		if (locationName.value == "") return alert("The location is empty.");
+		Session.set('gameLocation', locationName.value);
 	}
 });
 
@@ -272,38 +305,21 @@ Template.players.events({
  * Stats
  */
 
-Template.stats.isPlaying = function() {
-	return isPlaying();
-};
-
-Template.stats.currentPoints = function() {
-	currentPointsDepend.depend();
-	return currentPoints;
-};
-
 Template.stats.games = function() {
 	return Games.find({status: "complete", location: Session.get('gameLocation')});
 };
 
 Template.stats.playerList = function() {
-	currentScoreDepend.depend();
-	var string = "";
-	for (i in currentScore) {
-		if (string != "") {
-			string += ", ";
-		}
-		string += currentScore[i].player.name + ": " + currentScore[i].score; 
-	}
-	return string;
+	return getCurrentScore();
 };
 
 Template.gameRow.playerList = function() {
 	var string = "";
-	for (i in this.score) {
+	for (i in this.players) {
 		if (string != "") {
 			string += ", ";
 		}
-		string += this.score[i].player.name + ": " + this.score[i].score; 
+		string += this.players[i].name; 
 	}
 	return string;
 };
@@ -322,6 +338,31 @@ Template.gameRow.winner = function() {
 Template.gameRow.events({
 	'click button.removeGame': function() {
 		Games.remove(this._id);
+	},
+	'click button.gameStats': function() {
+		Router.go('statsSingle', {_id: this._id});
+	}
+});
+
+Template.statsSingle.points = function() {
+	return Router.getData().points;
+};
+
+Template.statsSingle.score = function() {
+	var string = "";
+	var score = Router.getData().score;
+	for (i in score) {
+		if (string != "") {
+			string += ", ";
+		}
+		string += score[i].player.name + ": " + score[i].score; 
+	}
+	return string;	
+};
+
+Template.statsSingle.events({
+	'click button.backToStats': function() {
+		Router.go('stats');
 	}
 });
 
@@ -369,7 +410,7 @@ Template.navagation.events({
 		
 	},
 	'click a.routePlayers': function() {
-		Router.go('players');
+		Router.go('players');	
 	},
 	'click a.routeStats': function() {
 		Router.go('stats');
@@ -386,14 +427,8 @@ function renderNavagation() {
 			elements[i].className = "navagation-link";
 		}
 	}
+	return;
 }
-
-Template.navagation.getActiveClass = function(tabName) {
-	if (window.location.pathname.indexOf(tabName) != -1) {
-		return 'active';
-	}
-	return '';
-};
 
 Meteor.startup(function() {
 	if (Players.find({location: Session.get('gameLocation')}).length == 0) {

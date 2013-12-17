@@ -1,3 +1,6 @@
+body {
+	font-size: 1.5em;
+}
 .navagation-link {
 	cursor: pointer;
 }
@@ -5,8 +8,15 @@
 .score-button {
 	height: 240px;
 	margin-bottom: 40px;
+	font-size: 2em;
+	line-height: 62px;
 }
 
 .bigger-button {
 	height: 60px;
+	font-size: 2em;
+}
+
+.nav a {
+	height: 40px;
 }
