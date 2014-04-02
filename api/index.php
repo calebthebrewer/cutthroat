@@ -1,66 +1,148 @@
 <?php
-
 require 'Slim/Slim.php';
 
 $app = new Slim();
 
-$app->get('/wines', 'getWines');
-$app->get('/wines/:id',	'getWine');
-$app->get('/wines/search/:query', 'findByName');
-$app->post('/wines', 'addWine');
-$app->put('/wines/:id', 'updateWine');
-$app->delete('/wines/:id',	'deleteWine');
+$app->get('/players', 'getPlayers');
+$app->get('/players/:id', 'getPlayer');
+$app->post('/players', 'addPlayer');
+
+$app->get('/games', 'getGames');
+$app->get('/games/:id', 'getGame');
+$app->post('/games', 'addGame');
+
+$app->get('/points/:game', 'getPoints');
+$app->post('/points', 'addPoint');
 
 $app->run();
 
-function getWines() {
-	$sql = "select * FROM wine ORDER BY name";
+function getPlayers() {
+	$sql = "select * FROM players ORDER BY name";
 	try {
 		$db = getConnection();
 		$stmt = $db->query($sql);  
-		$wines = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$players = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$db = null;
-		// echo '{"wine": ' . json_encode($wines) . '}';
-		echo json_encode($wines);
+		echo json_encode($players);
 	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
 		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
 	}
 }
 
-function getWine($id) {
-	$sql = "SELECT * FROM wine WHERE id=:id";
+function getPlayer($id) {
+	$sql = "SELECT * FROM players WHERE id=:id";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  
 		$stmt->bindParam("id", $id);
 		$stmt->execute();
-		$wine = $stmt->fetchObject();  
+		$player = $stmt->fetchObject();  
 		$db = null;
-		echo json_encode($wine); 
+		echo json_encode($player); 
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+}
+
+function addPlayer() {
+	$request = Slim::getInstance()->request();
+	$player = $request->post();
+	$sql = "INSERT INTO players (id, name, score) VALUES (null, :name, :score)";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);  
+		$stmt->bindParam("name", $player['name']);
+		$stmt->bindParam("score", $player['score']);
+		$stmt->execute();
+		$player['id'] = $db->lastInsertId();
+		$db = null;
+		echo json_encode($player); 
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+}
+
+function getGames() {
+	$sql = "select * FROM games ORDER BY id";
+	try {
+		$db = getConnection();
+		$stmt = $db->query($sql);  
+		$games = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$db = null;
+		echo json_encode($games);
 	} catch(PDOException $e) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
 	}
 }
 
-function addWine() {
-	error_log('addWine\n', 3, '/var/tmp/php.log');
-	$request = Slim::getInstance()->request();
-	$wine = json_decode($request->getBody());
-	$sql = "INSERT INTO wine (name, grapes, country, region, year, description, picture) VALUES (:name, :grapes, :country, :region, :year, :description, :picture)";
+function getGame($id) {
+	$sql = "SELECT * FROM games WHERE id=:id";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  
-		$stmt->bindParam("name", $wine->name);
-		$stmt->bindParam("grapes", $wine->grapes);
-		$stmt->bindParam("country", $wine->country);
-		$stmt->bindParam("region", $wine->region);
-		$stmt->bindParam("year", $wine->year);
-		$stmt->bindParam("description", $wine->description);
-		$stmt->bindParam("picture", $wine->picture);
+		$stmt->bindParam("id", $id);
 		$stmt->execute();
-		$wine->id = $db->lastInsertId();
+		$game = $stmt->fetchObject();  
 		$db = null;
-		echo json_encode($wine); 
+		echo json_encode($game); 
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+}
+
+function addGame() {
+	$request = Slim::getInstance()->request();
+	$game = $request->post();
+	$sql = "INSERT INTO games (id, status, time) VALUES (null, default, default)";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);  
+		$stmt->execute();
+		$game['id'] = $db->lastInsertId();
+		$db = null;
+		echo json_encode($game); 
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+}
+
+function getPoints($game) {
+	$sql = "SELECT * FROM points WHERE game=:game ORDER BY id";
+	try {
+		$db = getConnection();
+		$stmt = $db->query($sql);
+		$stmt->bindParam("game", $game);
+		$points = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$db = null;
+		echo json_encode($points);
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, '/var/tmp/php.log');
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+}
+
+function addPoint() {
+	$request = Slim::getInstance()->request();
+	$point = $request->post();
+	$sql = "INSERT INTO points (id, server, receiver, winner, how, game) VALUES (null, :server, :receiver, :winner, :how, :game)";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);  
+		$stmt->bindParam("server", $player['server']);
+		$stmt->bindParam("score", $player['score']);
+		$stmt->bindParam("receiver", $player['receiver']);
+		$stmt->bindParam("winner", $player['winner']);
+		$stmt->bindParam("how", $player['how']);
+		$stmt->bindParam("game", $player['game']);
+		$stmt->execute();
+		$point['id'] = $db->lastInsertId();
+		$db = null;
+		echo json_encode($point); 
 	} catch(PDOException $e) {
 		error_log($e->getMessage(), 3, '/var/tmp/php.log');
 		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
@@ -123,7 +205,7 @@ function findByName($query) {
 function getConnection() {
 	$dbhost="127.0.0.1";
 	$dbuser="root";
-	$dbpass="";
+	$dbpass="Cazzer1!";
 	$dbname="cutthroat";
 	$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);	
 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

@@ -1,7 +1,7 @@
 var AppRouter = Backbone.Router.extend({
 
     routes: {
-        ""                  : "list",
+        ""                  : "players",
         "wines/page/:page"	: "list",
         "wines/add"         : "addWine",
         "wines/:id"         : "wineDetails",
@@ -13,7 +13,7 @@ var AppRouter = Backbone.Router.extend({
         $('.header').html(this.headerView.el);
     },
 
-	list: function(page) {
+	players: function(page) {
         var p = page ? parseInt(page, 10) : 1;
         var wineList = new WineCollection();
         wineList.fetch({success: function(){
