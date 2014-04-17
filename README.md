@@ -19,5 +19,5 @@ The loser of the first point leaves the table and the winner recieves from the n
 Once the game is finished view the stats and make sure to click 'End Game', that is what saves it. After that your games and a log of every point are locked in a MongoDB database deep underground. Maybe someday I'll provide a way to retreive them, or you can always just use Meteor's awesome console api.
 
 ###Technologies used
-+ (Meter)[http://meteor.com/] - do yourself a favor and check this out if you haven't already
-+ (Bootstrap)[http://getbootstrap.com/] < 3 - it sucks to be stuck on an old version. The new version is all 3.sexy though, don't worry
++ [Meter](http://meteor.com/) - do yourself a favor and check this out if you haven't already
++ [Bootstrap](http://getbootstrap.com/) < 3 - it sucks to be stuck on an old version. The new version is all 3.sexy though, don't worry
